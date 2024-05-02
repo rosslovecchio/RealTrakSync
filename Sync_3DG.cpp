@@ -68,7 +68,7 @@ std::string getCurrentDateTime() {
     return ss.str();
 }
 
-void initializeRealSense(rs2::pipeline& p, rs2::config& cfg) {
+void initializeRealSense(rs2::pipeline &p, rs2::config &cfg) {
     cfg.enable_stream(RS2_STREAM_DEPTH); // Enable depth stream
     cfg.enable_stream(RS2_STREAM_COLOR); // Enable color stream
     // Start the pipeline with the configuration
@@ -76,9 +76,9 @@ void initializeRealSense(rs2::pipeline& p, rs2::config& cfg) {
     std::cout << "RealSense D405 initialized" << std::endl;
 }
 
-void initializeTrackStar(CSystem& ATC3DG) {
+void initializeTrackStar(CSystem &ATC3DG) {
     // Hypothetical function calls to initialize the 3D Guidance TrackStar
-
+    
     CSensor* pSensor;
     CXmtr* pXmtr;
 
@@ -171,7 +171,7 @@ void saveRealSenseData() {
         rs2::frame frame;
         if (framesQueue.poll_for_frame(&frame)) { // Try to get a frame from the queue
             auto vf = frame.as<rs2::video_frame>();
-
+           
             // Use the colorizer to get an rgb image for the depth stream
             if (vf.is<rs2::depth_frame>()) vf = color_map.process(frame);
 
@@ -179,7 +179,7 @@ void saveRealSenseData() {
             double timestamp = vf.get_timestamp();
             std::stringstream filename;
             filename << dir << "frame_" << std::fixed << std::setprecision(0) << timestamp << "-" << vf.get_profile().stream_name() << ".png";
-
+            
             //stbi_write_png(filename.str().c_str(), vf.get_width(), vf.get_height(),
                 //vf.get_bytes_per_pixel(), vf.get_data(), vf.get_stride_in_bytes());
             std::cout << "Saved " << filename.str() << std::endl;
@@ -190,7 +190,7 @@ void saveRealSenseData() {
                 << "-metadata.csv";
             metadata_to_csv(vf, csv_file.str());
             */
-
+            
         }
     }
 }
@@ -208,9 +208,9 @@ void acquireTrackStarData(CSystem& ATC3DG) {
 
     goal = wait + clock();
 
-    while (running) {
+    while (running){
         std::unique_lock<std::mutex> lk(mtx);
-        queueNotFull.wait(lk, [] { return dataQueue.size() < maxQueueSize; });
+        queueNotFull.wait(lk, [] { return dataQueue.size()  <maxQueueSize; });
 
         // delay 10ms between collecting data
         // wait till time delay expires
@@ -224,7 +224,7 @@ void acquireTrackStarData(CSystem& ATC3DG) {
         // Print result to screen
         // Note: The default data format is DOUBLE_POSITION_ANGLES. We can use this
         // format without first setting it.
-
+        
         DOUBLE_POSITION_ANGLES_TIME_STAMP_RECORD record, * pRecord = &record;
 
         // scan the sensors and request a record if the sensor is physically attached
@@ -234,16 +234,16 @@ void acquireTrackStarData(CSystem& ATC3DG) {
             errorCode = GetAsynchronousRecord(sensorID, pRecord, sizeof(record));
             if (errorCode != BIRD_ERROR_SUCCESS) { errorHandler(errorCode); }
             // send output to console
-            sprintf(output, "%4d [%d] %8.3f %8.3f %8.3f: %8.2f %8.2f %8.2f\n",
-                record.time,
-                sensorID,
-                record.x,
-                record.y,
-                record.z,
-                record.a,
-                record.e,
-                record.r
-            );
+                sprintf(output, "%4d [%d] %8.3f %8.3f %8.3f: %8.2f %8.2f %8.2f\n",
+                    record.time,
+                    sensorID,
+                    record.x,
+                    record.y,
+                    record.z,
+                    record.a,
+                    record.e,
+                    record.r
+                );
             numberBytes = strlen(output);
             printf("%s", output);
 
@@ -269,7 +269,7 @@ void saveTrackStarData(std::string trackstarDir) {
     std::stringstream filename;
     std::string folderName = getCurrentDateTime();
 
-
+    
     filename << trackstarDir << "/record_" << folderName << ".csv";
 
     // Open a file in append mode
@@ -299,12 +299,12 @@ void saveTrackStarData(std::string trackstarDir) {
             lk.unlock();
             queueNotFull.notify_one();
 
-
+            
             outFile << std::fixed << std::setprecision(3) << record.time << ", " << sensorID << ", ";
             outFile << record.x << ", " << record.y << ", " << record.z << ", "
                 << record.a << ", " << record.e << ", " << record.r << "\n";
 
-
+    
             // Save the record to disk (implement actual saving logic here)
         }
 
@@ -317,7 +317,7 @@ void saveTrackStarData(std::string trackstarDir) {
 void timestamp2LSL(lsl::stream_info info) {
     // make a new outlet
     lsl::stream_outlet outlet(info, 0, 100);
-    std::vector<int> sample(2, 0.0);
+    std::vector<int> sample(2,0.0);
     int duration_ms = 0;
     while (running) {
         auto now = std::chrono::system_clock::now();
@@ -337,7 +337,7 @@ int main() {
 
         // LSL timestamp setup 
         lsl::stream_info info("SyncApp", "Timestamp", 2, 1000, lsl::cf_int32, "SyncApp - Timestamp");
-
+        
 
         CSystem	ATC3DG;
         try {
@@ -378,7 +378,7 @@ int main() {
         if (!serial.empty())
             cfg.enable_device(serial);
         initializeRealSense(p, cfg);
-
+   
 
         std::thread timestamp2LSLThread(timestamp2LSL, info);
         std::thread trackstarDataThread(acquireTrackStarData, ATC3DG);
@@ -403,7 +403,7 @@ int main() {
         trackstarDataThread.join();
         trackstarSaveThread.join();
 
-
+     
     }
     catch (const rs2::error& e) {
         std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
@@ -433,7 +433,7 @@ void errorHandler(int error) {
         std::getline(std::cin, input);
     }
 
-
+    
     exit(0);
 }
 

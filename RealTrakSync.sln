@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealTrakSync", "..\RealSense_3DG\samples\Sync_3DG\Sync_3DG.vcxproj", "{034700C7-8D9D-47DE-9E69-5F7A7D711D67}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sync_3DG", "..\RealSense_3DG\samples\Sync_3DG\Sync_3DG.vcxproj", "{034700C7-8D9D-47DE-9E69-5F7A7D711D67}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealTrakSync", "RealTrakSync.vcxproj", "{DDC72400-3247-470B-B4FA-BE3426F444E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{034700C7-8D9D-47DE-9E69-5F7A7D711D67}.Release|x64.Build.0 = Release|x64
 		{034700C7-8D9D-47DE-9E69-5F7A7D711D67}.Release|x86.ActiveCfg = Release|x64
 		{034700C7-8D9D-47DE-9E69-5F7A7D711D67}.Release|x86.Build.0 = Release|x64
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Debug|x64.ActiveCfg = Debug|x64
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Debug|x64.Build.0 = Debug|x64
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Debug|x86.ActiveCfg = Debug|Win32
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Debug|x86.Build.0 = Debug|Win32
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Release|x64.ActiveCfg = Release|x64
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Release|x64.Build.0 = Release|x64
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Release|x86.ActiveCfg = Release|Win32
+		{DDC72400-3247-470B-B4FA-BE3426F444E9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

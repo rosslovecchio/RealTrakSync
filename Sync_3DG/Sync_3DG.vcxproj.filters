@@ -23,10 +23,25 @@
     <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\third-party\lsl\include\lsl_cpp.h">
+    <ClInclude Include="..\cv-helpers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\third-party\trackstar\StdAfx.h">
+    <ClInclude Include="..\d415.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d435.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\example.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\example-imgui.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\example-utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\int-rs-splash.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

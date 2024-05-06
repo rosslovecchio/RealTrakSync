@@ -17,13 +17,13 @@
     <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\third-party\glfw-imgui\src\glfw-imgui.vcxproj; ..\..\third-party\trackstar\trakstarLSL.vcxproj">
-      <Project>{ea621509-198f-4b16-99da-aa911b721536}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\third-party\lsl\include\lsl_cpp.h" />
-    <ClInclude Include="..\..\third-party\trackstar\StdAfx.h" />
+    <ClInclude Include="..\cv-helpers.hpp" />
+    <ClInclude Include="..\d415.h" />
+    <ClInclude Include="..\d435.h" />
+    <ClInclude Include="..\example-imgui.hpp" />
+    <ClInclude Include="..\example-utils.hpp" />
+    <ClInclude Include="..\example.hpp" />
+    <ClInclude Include="..\int-rs-splash.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{034700C7-8D9D-47DE-9E69-5F7A7D711D67}</ProjectGuid>
@@ -67,13 +67,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\RL000009\source\repos\opencv\build\include;C:\Users\RL000009\source\repos\RealSense_3DG\third-party\trackstar;C:\Users\RL000009\source\repos\RealSense_3DG\third-party\lsl\include;$(ProjectDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\RL000009\source\repos\opencv\build\include;C:\Users\RL000009\source\repos\RealTrakSync\third-party\lsl\include;$(ProjectDir)..;C:\Users\RL000009\source\repos\RealTrakSync\third-party\glfw-imgui;C:\Users\RL000009\source\repos\RealTrakSync\include;C:\Users\RL000009\source\repos\RealTrakSync\third-party;C:\Users\RL000009\source\repos\RealTrakSync\third-party\trackstar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Users\RL000009\source\repos\RealSense_3DG\third-party\trackstar;C:\Users\RL000009\source\repos\RealSense_3DG\third-party\lsl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ATC3DG.lib;ATC3DG64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\RL000009\source\repos\RealTrakSync\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ATC3DG.lib;ATC3DG64.lib;glfw-imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

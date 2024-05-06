@@ -2,7 +2,7 @@
 //
 #include <iostream>             // Terminal IO
 #include <librealsense2/rs.hpp> // Include RealSense Cross Platform API
-#include "example.hpp"          // Include short list of convenience functions for rendering
+#include "example.hpp"          // Include short list of convenience functions for rendering/
 #include "example-imgui.hpp"
 #include <chrono>
 #include <imgui.h>
@@ -19,7 +19,7 @@
 #include "lsl_cpp.h" 
 #include <stdlib.h>
 #include <array>
-#include "stdafx.h"
+#include <stdafx.h>
 #include <fstream>              // File IO
 #include <sstream>              // Stringstreams
 #include <opencv2/opencv.hpp>
@@ -31,7 +31,8 @@ bool dataReady = false;
 std::string savePath = "C:/Users/RL000009/source/repos/WP1_recordings/";//"C:/Users/RL000009/OneDrive - Vrije Universiteit Brussel/Documents/ASKILLS/WP1/Recordings/";
 
 // Queue for data records
-std::queue<DOUBLE_POSITION_ANGLES_TIME_STAMP_RECORD> dataQueue;
+//std::queue<DOUBLE_POSITION_ANGLES_TIME_STAMP_RECORD> dataQueue;
+std::queue <DOUBLE_POSITION_QUATERNION_TIME_Q_RECORD> dataQueue;
 std::queue<int> sIDQueue;
 const int maxQueueSize = 10;
 rs2::frame_queue framesQueue(50);
@@ -112,7 +113,7 @@ void initializeTrackStar(CSystem &ATC3DG) {
     // Set the data format type for each attached sensor.
     for (i = 0; i < ATC3DG.m_config.numberSensors; i++)
     {
-        DATA_FORMAT_TYPE type = DOUBLE_POSITION_ANGLES_TIME_STAMP;
+        DATA_FORMAT_TYPE type = DOUBLE_POSITION_QUATERNION_TIME_Q;
         errorCode = SetSensorParameter(i, DATA_FORMAT, &type, sizeof(type));
         if (errorCode != BIRD_ERROR_SUCCESS) errorHandler(errorCode);
     }
@@ -136,6 +137,24 @@ void initializeTrackStar(CSystem &ATC3DG) {
             break;
         }
     }
+
+    double pl = 50.0; // 50 Hz
+    AGC_MODE_TYPE agc = SENSOR_AGC_ONLY; // tx power fixed at max
+    double rate = 86.1; // 86.1 Hz
+    BOOL metric = true; // metric reporting enabled
+
+    errorCode = SetSystemParameter(POWER_LINE_FREQUENCY, &pl, sizeof(pl));
+    if (errorCode != BIRD_ERROR_SUCCESS) errorHandler(errorCode);
+
+    errorCode = SetSystemParameter(AGC_MODE, &agc, sizeof(agc));
+    if (errorCode != BIRD_ERROR_SUCCESS) errorHandler(errorCode);
+
+    errorCode = SetSystemParameter(MEASUREMENT_RATE, &rate, sizeof(rate));
+    if (errorCode != BIRD_ERROR_SUCCESS) errorHandler(errorCode);
+
+    errorCode = SetSystemParameter(METRIC, &metric, sizeof(metric));
+    if (errorCode != BIRD_ERROR_SUCCESS) errorHandler(errorCode);
+
     std::cout << "3D Guidance TrackStar initialized" << std::endl;
 }
 
@@ -150,10 +169,11 @@ void acquireRealSenseData(rs2::pipeline& p) {
     int fpscounter = 0;
     while (running) {
         rs2::frameset frameset = p.wait_for_frames(); // Get a set of frames from the camera
+        /*
         for (auto&& frame : frameset) {
             framesQueue.enqueue(frame); // Enqueue each frame
             fpscounter++;
-        }
+        }*/
         // Optional: Break condition or sleep
     }
 }
@@ -182,7 +202,7 @@ void saveRealSenseData() {
             
             //stbi_write_png(filename.str().c_str(), vf.get_width(), vf.get_height(),
                 //vf.get_bytes_per_pixel(), vf.get_data(), vf.get_stride_in_bytes());
-            std::cout << "Saved " << filename.str() << std::endl;
+            //std::cout << "Saved " << filename.str() << std::endl;
 
             /*
             std::stringstream csv_file;
@@ -225,8 +245,8 @@ void acquireTrackStarData(CSystem& ATC3DG) {
         // Note: The default data format is DOUBLE_POSITION_ANGLES. We can use this
         // format without first setting it.
         
-        DOUBLE_POSITION_ANGLES_TIME_STAMP_RECORD record, * pRecord = &record;
-
+       // DOUBLE_POSITION_ANGLES_TIME_STAMP_RECORD record, * pRecord = &record;
+        DOUBLE_POSITION_QUATERNION_TIME_Q_RECORD record, * pRecord = &record;
         // scan the sensors and request a record if the sensor is physically attached
         for (sensorID = 0; sensorID < ATC3DG.m_config.numberSensors; sensorID++)
         {
@@ -234,15 +254,15 @@ void acquireTrackStarData(CSystem& ATC3DG) {
             errorCode = GetAsynchronousRecord(sensorID, pRecord, sizeof(record));
             if (errorCode != BIRD_ERROR_SUCCESS) { errorHandler(errorCode); }
             // send output to console
-                sprintf(output, "%4d [%d] %8.3f %8.3f %8.3f: %8.2f %8.2f %8.2f\n",
+               sprintf(output, "%4g [%d] %4f %4f %4f %4f %4f\n",
                     record.time,
                     sensorID,
                     record.x,
                     record.y,
                     record.z,
-                    record.a,
-                    record.e,
-                    record.r
+                    record.q[0],
+             
+                    record.quality
                 );
             numberBytes = strlen(output);
             printf("%s", output);
@@ -284,14 +304,15 @@ void saveTrackStarData(std::string trackstarDir) {
     outFile
         << "Timestamp" << ", " << "Sensor ID, "
         << "X" << ", " << "Y" << ", " << "Z" << ", "
-        << "A" << ", " << "E" << ", " << "R" << "\n";
+        << "Q" << ", " << "Quality" << "\n";
 
     while (running) {
         std::unique_lock<std::mutex> lk(mtx);
         cond_var.wait(lk, [] { return !dataQueue.empty(); });
 
         if (!dataQueue.empty()) {
-            DOUBLE_POSITION_ANGLES_TIME_STAMP_RECORD record = dataQueue.front();
+            DOUBLE_POSITION_QUATERNION_TIME_Q_RECORD record = dataQueue.front();
+
             int sensorID = sIDQueue.front();
             dataQueue.pop();
             sIDQueue.pop();
@@ -302,7 +323,7 @@ void saveTrackStarData(std::string trackstarDir) {
             
             outFile << std::fixed << std::setprecision(3) << record.time << ", " << sensorID << ", ";
             outFile << record.x << ", " << record.y << ", " << record.z << ", "
-                << record.a << ", " << record.e << ", " << record.r << "\n";
+                << record.q[0] << ", " << record.quality << "\n";
 
     
             // Save the record to disk (implement actual saving logic here)
@@ -348,7 +369,7 @@ int main() {
         }
 
 
-        std::cout << "Ready. Press ENTER to start recording (set LSL folder now)" << std::endl;
+        std::cout << "Ready. Press ENTER to create storage folders " << std::endl;
         std::string input2;
         std::getline(std::cin, input2);
         //window app(1280, 720, "RealSense Capture"); // Initialization
@@ -368,7 +389,7 @@ int main() {
         rs2::config cfg;
         std::string bagFile = realsenseDir + "/" + getCurrentDateTime() + "_record.bag";
 
-        std::cout << "Press ENTER to start capturing" << std::endl;
+        std::cout << "Press ENTER to start capturing (set LSL folder now)" << std::endl;
         std::string input;
         std::getline(std::cin, input);
 
@@ -384,7 +405,7 @@ int main() {
         std::thread trackstarDataThread(acquireTrackStarData, ATC3DG);
         std::thread trackstarSaveThread(saveTrackStarData, trackstarDir);
         std::thread realsenseDataThread(acquireRealSenseData, p);
-        std::thread realsenseSaveThread(saveRealSenseData);
+        //std::thread realsenseSaveThread(saveRealSenseData);
 
         /*
         while (app && running) {
@@ -398,7 +419,7 @@ int main() {
 
         timestamp2LSLThread.join();
         realsenseDataThread.join();
-        realsenseSaveThread.join();
+        //realsenseSaveThread.join();
         stopper.join();
         trackstarDataThread.join();
         trackstarSaveThread.join();

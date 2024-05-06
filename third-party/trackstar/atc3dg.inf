@@ -1,0 +1,105 @@
+[Version]
+Signature = "$Windows NT$"
+Class = USB
+ClassGUID={36FC9E60-C465-11CF-8056-444553540000}
+Provider = %ProviderName%
+CatalogFile=atc3dgusb.cat
+DriverVer=03/26/2013,2.08.28
+
+; ========== Manufacturer/Models sections ===========
+
+[Manufacturer]
+%ProviderName% = MyDevice_WinUSB,NTx86,NTamd64,NTia64
+
+; Cypress VIDS & PIDS were incorrectly used for the ATC USB drivers
+; Postpend the FX2 Rev here to workaround potential conflicts with
+; other devices that may have used Cypress VIDS & PIDS
+
+[MyDevice_WinUSB.NTx86]
+%VID_04B4&PID_1003.DeviceDesc%=USB_Install, USB\VID_04B4&PID_1003&REV_0221
+%VID_04B4&PID_1004.DeviceDesc%=USB_Install, USB\VID_04B4&PID_1004
+%VID_04B4&PID_1005.DeviceDesc%=USB_Install, USB\VID_04B4&PID_1005&REV_0221
+
+[MyDevice_WinUSB.NTamd64]
+%VID_04B4&PID_1003.DeviceDesc%=USB_Install, USB\VID_04B4&PID_1003&REV_0221
+%VID_04B4&PID_1004.DeviceDesc%=USB_Install, USB\VID_04B4&PID_1004
+%VID_04B4&PID_1005.DeviceDesc%=USB_Install, USB\VID_04B4&PID_1005&REV_0221
+
+; =================== Installation ===================
+
+;[1]
+[USB_Install]
+Include=winusb.inf
+Needs=WINUSB.NT
+
+;[2]
+[USB_Install.Services]
+Include=winusb.inf
+AddService=WinUSB,0x00000002,WinUSB_ServiceInstall
+
+;[3]
+[WinUSB_ServiceInstall]
+DisplayName     = %WinUSB_SvcDesc%
+ServiceType     = 1
+StartType       = 3
+ErrorControl    = 1
+ServiceBinary   = %12%\WinUSB.sys
+
+;[4]
+[USB_Install.Wdf]
+KmdfService=WINUSB, WinUsb_Install
+
+[WinUSB_Install]
+KmdfLibraryVersion=1.5
+
+;[5]
+[USB_Install.HW]
+AddReg=Dev_AddReg
+
+[Dev_AddReg]
+HKR,,DeviceInterfaceGUIDs,0x10000,"{b35924d6-3e16-4a9e-9782-5524a4b79bac}"
+HKLM,SYSTEM\CurrentControlSet\Control\UsbFlags,IgnoreHWSerNum04B41003,1,1
+HKLM,SYSTEM\CurrentControlSet\Control\UsbFlags,IgnoreHWSerNum04B41004,1,1
+HKLM,SYSTEM\CurrentControlSet\Control\UsbFlags,IgnoreHWSerNum04B41005,1,1
+
+;[6]
+[USB_Install.CoInstallers]
+AddReg=CoInstallers_AddReg
+CopyFiles=CoInstallers_CopyFiles
+
+[CoInstallers_AddReg]
+HKR,,CoInstallers32,0x00010000,"WdfCoInstaller01007.dll,WdfCoInstaller","WinUSBCoInstaller.dll"
+
+[CoInstallers_CopyFiles]
+WinUSBCoInstaller.dll
+WdfCoInstaller01007.dll
+
+[DestinationDirs]
+CoInstallers_CopyFiles=11
+
+; ================= Source Media Section =====================
+;[7]
+
+[SourceDisksNames]
+1 = %DISK_NAME%,,,\i386
+2 = %DISK_NAME%,,,\amd64
+
+[SourceDisksFiles.x86]
+WinUSBCoInstaller.dll=1
+WdfCoInstaller01007.dll=1
+
+[SourceDisksFiles.amd64]
+WinUSBCoInstaller.dll=2
+WdfCoInstaller01007.dll=2
+
+; =================== Strings ===================
+
+[Strings]
+PROVIDERNAME="Ascension"
+USB\MyDevice.DeviceDesc="Test using WinUSB only"
+WinUSB_SvcDesc="WinUSB Test"
+DISKNAME="Ascension USB Driver Installation Disk for 3D Guidance Tracking Device"
+VID_04B4&PID_1003.DeviceDesc="Ascension USB Device for 3D Guidance driveBAY"
+VID_04B4&PID_1004.DeviceDesc="Ascension USB Device for 3D Guidance medSAFE"
+VID_04B4&PID_1005.DeviceDesc="Ascension USB Device for 3D Guidance trakSTAR"
+
